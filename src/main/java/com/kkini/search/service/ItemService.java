@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ItemService {
@@ -14,5 +15,10 @@ public class ItemService {
 
     public List<Item> searchByName(String name){
         return itemRepository.findByNameContaining(name);
+    }
+    public List<String> findNamesByQuery(String query) {
+        return itemRepository.findByNameContainingIgnoreCase(query).stream()
+                .map(Item::getName)
+                .collect(Collectors.toList());
     }
 }
