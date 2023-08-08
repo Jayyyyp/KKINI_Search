@@ -3,6 +3,7 @@ package com.kkini.search.controller;
 import com.kkini.search.entity.Item;
 import com.kkini.search.service.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,5 +29,10 @@ public class ItemController {
         List<Item> items = itemService.searchByName(name);
         model.addAttribute("items", items);
         return "searchResult";
+    }
+    @GetMapping("/api/search/suggestions")
+    public ResponseEntity<List<String>> getSuggestions(@RequestParam String query) {
+        System.out.println("Query : " + query);
+        return ResponseEntity.ok(itemService.findNamesByQuery(query));
     }
 }
