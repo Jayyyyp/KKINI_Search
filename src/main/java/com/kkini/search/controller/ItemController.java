@@ -31,8 +31,7 @@ public class ItemController {
         return "searchResult";
     }
     @GetMapping("/api/search/suggestions")
-    public ResponseEntity<List<String>> getSuggestions(@RequestParam String query) {
-        System.out.println("Query : " + query);
-        return ResponseEntity.ok(itemService.findNamesByQuery(query));
+    public ResponseEntity<List<String>> getSuggestions(@RequestParam String query, @RequestParam String category) {
+        return ResponseEntity.ok(itemService.findNamesByQueryAndCategory(query, category));
     }
 }

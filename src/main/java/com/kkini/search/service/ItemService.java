@@ -21,4 +21,10 @@ public class ItemService {
                 .map(Item::getName)
                 .collect(Collectors.toList());
     }
+    public List<String> findNamesByQueryAndCategory(String query, String category) {
+        return itemRepository.findByNameContainingIgnoreCaseAndCategory(query, category)
+                .stream()
+                .map(Item::getName)
+                .collect(Collectors.toList());
+    }
 }

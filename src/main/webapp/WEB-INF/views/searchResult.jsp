@@ -10,14 +10,15 @@
 <table border="1">
     <tr>
         <th>ID</th>
+        <th>Category</th>
         <th>Name</th>
-        <th>Description</th>
+
     </tr>
     <c:forEach var="item" items="${items}">
         <tr>
             <td>${item.id}</td>
+            <td>${item.category}</td>
             <td>${item.name}</td>
-            <td>${item.description}</td>
         </tr>
     </c:forEach>
 </table>
