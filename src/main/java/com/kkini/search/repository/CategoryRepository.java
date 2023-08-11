@@ -3,5 +3,8 @@ package com.kkini.search.repository;
 import com.kkini.search.entity.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface CategoryRepository extends JpaRepository<Category, String> {
+import java.util.Optional;
+
+public interface CategoryRepository extends JpaRepository<Category, Long> {
+    Optional<Category> findById(Long categoryId);
 }

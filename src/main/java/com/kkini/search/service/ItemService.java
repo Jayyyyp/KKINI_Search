@@ -20,24 +20,8 @@ public class ItemService {
     public ItemService(ItemRepository itemRepository){
         this.itemRepository = itemRepository;
     }
-
-    public List<Item> getItemsByCategoryId(Long categoryId){
-        if(categoryId == 1){
-            // categoryId가 1(KKINI)일 경우, 모든 아이템을 평점순으로 반환
-            return itemRepository.findAll(Sort.by(Sort.Direction.DESC, "averageRating"));
-        } else{
-            // 그 외의 경우는 해당 카테고리에 속하는 아이템만 평점순으로 반환
-            return itemRepository.findByCategory_CategoryIdOrderByAverageRatingDesc(categoryId);
-        }
-    }
-    public List<Item> getItemsByCategoryName(String categoryName){
-        return itemRepository.findByCategory_CategoryName(categoryName);
-    }
     public List<Item> searchItemsByRanking(String name) {
         return itemRepository.findByNameContainingOrderByAverageRatingDesc(name);
-    }
-    public List<Item> searchAllItemsByName(String name) {
-        return itemRepository.findAllByNameLike(name);
     }
     public List<Item> searchItemsByNameAndCategory(String name, Long categoryId) {
         return itemRepository.findByNameAndCategoryCategoryId(name, categoryId);
