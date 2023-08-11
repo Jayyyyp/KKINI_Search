@@ -8,5 +8,6 @@
 </head>
 <body>
         <h1>잘못검색했으요~</h1>
+        <a href="/items/search">Back to Search Page</a>
 </body>
 </html>
