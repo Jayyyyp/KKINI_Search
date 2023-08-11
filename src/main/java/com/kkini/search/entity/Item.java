@@ -5,22 +5,26 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Entity@ToString
-@NoArgsConstructor@AllArgsConstructor
-@Builder@Getter
+@Entity@ToString@NoArgsConstructor@AllArgsConstructor@Builder@Getter
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
     private Long id;
-    @Column(nullable = false)
-    private String category;
-    @Column(nullable = false)
+
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    @Column(name = "name", nullable = false)
     private String name;
+
     @Column(nullable = false)
-    private double averageRating;
+    private Double averageRating;
+
     @Column(nullable = false)
     private String productImage;
+
     @Column(nullable = false)
     private long lowestPrice;
 

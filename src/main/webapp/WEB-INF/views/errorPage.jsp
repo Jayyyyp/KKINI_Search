@@ -7,6 +7,6 @@
     <title>Insert title here</title>
 </head>
 <body>
-
+    <a href="/items/search">Back to Search Page</a>
 </body>
 </html>
