@@ -3,12 +3,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>Items by Category</title>
+    <title>Main Categories</title>
 </head>
 <body>
-<h2>Items List</h2>
+<h2>Select a Main Category</h2>
 
+<c:forEach var="category" items="${mainCategories}">
+    <a href="/category/${category.categoryId}">${category.categoryName}</a><br>
+</c:forEach>
+
+<h2>All Items</h2>
 <c:if test="${empty items}">
     <p>No items available for the selected category.</p>
 </c:if>
@@ -41,6 +45,5 @@
         </tbody>
     </table>
 </c:if>
-
 </body>
 </html>

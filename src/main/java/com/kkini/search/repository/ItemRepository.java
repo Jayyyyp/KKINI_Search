@@ -16,4 +16,6 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             "(i.category.categoryId = :categoryId OR :categoryId IS NULL) ORDER BY i.averageRating DESC")
     List<Item> findByNameAndCategoryCategoryId(@Param("name") String name,
                                                @Param("categoryId") Long categoryId);
+
+    List<Item> findByCategory_CategoryId(Long categoryId);
 }

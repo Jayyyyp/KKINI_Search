@@ -23,9 +23,29 @@ public class CategoriesController {
     public CategoriesController(CategoryService categoryService){
         this.categoryService = categoryService;
     }
-    @GetMapping("/all/{categoryId}")
-    public String getAllItemsByCategories(@PathVariable Long categoryId, Model model){
-        List<Item> items = categoryService.getItemsByCategory(categoryId);
+
+    @GetMapping("/main") // 메인 카테고리 보여주는 화면
+    public String showMainCategories(Model model){
+        List<Category> mainCategories = categoryService.getMainCategories();
+        List<Item> items = categoryService.getAllItems();
+        model.addAttribute("mainCategories", mainCategories);
+        model.addAttribute("items", items);
+        return "/mainCategories";
+    }
+    @GetMapping("/{mainCategoryId}") // 소분류 카테고리를 보여주는 메서드
+    public String showSubCategories(@PathVariable Long mainCategoryId, Model model){
+        List<Category> subCategories = categoryService.getSubCategories(mainCategoryId);
+        List<Item> items = categoryService.getAllItemsByMainCategory(mainCategoryId);
+
+        model.addAttribute("subCategories", subCategories);
+        model.addAttribute("items", items);
+        System.out.println("=============================");
+        System.out.println(items.size());
+        return "/subCategories";
+    }
+    @GetMapping("/items/{subCategoryId}") // 특정 소분류 카테고리의 아이템을 보여주는 메서드
+    public String showItemsBySubCategory(@PathVariable Long subCategoryId, Model model){
+        List<Item> items = categoryService.getItemsBySubCategory(subCategoryId);
         model.addAttribute("items", items);
         return "/items";
     }
