@@ -36,12 +36,10 @@ public class ItemController {
         }
 
         List<Item> items;
-
-        if (categoryId != null && categoryId == 1L) {
-            items = itemService.searchItemsByNameAndCategory(name, 1L);
-            items.addAll(itemService.searchItemsByNameAndCategory(name, 2L)); // KKINI 카테고리에서 KKINI Green 상품도 보여줌
-        } else if (categoryId != null && categoryId == 2L) {
-            items = itemService.searchItemsByNameAndCategory(name, 2L); // KKINI Green 카테고리만 보여줌
+        if (name != null && name.length() >= 2) {
+            items = itemService.searchItemsByNameOrCategory(name, categoryId);
+        } else if (categoryId != null) {
+            items = itemService.searchItemsByNameOrCategory(null, categoryId);
         } else {
             model.addAttribute("items", Collections.emptyList());
             return "search";
@@ -54,9 +52,15 @@ public class ItemController {
             return "noItems";
         }
     }
-
     private boolean isAjaxRequest(HttpServletRequest request) {
         String requestedWithHeader = request.getHeader("X-Requested-With");
         return "XMLHttpRequest".equals(requestedWithHeader);
+    }
+
+    @GetMapping("/{itemId}")
+    public String viewItemDetails(@PathVariable Long itemId, Model model){
+        Item item = itemService.getItemById(itemId);
+        model.addAttribute("item", item);
+        return "itemDetails";
     }
 }

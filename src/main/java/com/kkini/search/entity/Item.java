@@ -5,7 +5,8 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Entity@ToString@NoArgsConstructor@AllArgsConstructor@Builder@Getter
+@Entity@NoArgsConstructor@AllArgsConstructor@Builder@Getter
+@ToString(exclude = {"category"})
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

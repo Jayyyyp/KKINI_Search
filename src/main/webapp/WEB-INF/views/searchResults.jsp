@@ -5,10 +5,17 @@
 <head>
     <meta charset="UTF-8">
     <title>Search Results</title>
+    <style>
+        .item-row:hover {
+            background-color: darkgray;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
 
 <h1>Search Results</h1>
+<a href="/items/search">Back to Search Page</a>
 
 <table border="1">
     <thead>
@@ -22,7 +29,7 @@
     </thead>
     <tbody>
     <c:forEach var="item" items="${items}">
-        <tr>
+        <tr data-item-id="${item.id}" class="item-row">
             <td>${item.name}</td>
             <td>${item.averageRating}</td>
             <td><img src="${item.productImage}" alt="${item.name}" width="100"></td>
@@ -33,7 +40,16 @@
     </tbody>
 </table>
 
-<a href="/items/search">Back to Search Page</a>
-
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const rows = document.querySelectorAll('.item-row');
+        rows.forEach(row => {
+            row.addEventListener('click', function() {
+                const itemId = this.getAttribute('data-item-id');
+                window.location.href = `/items/${itemId}`;
+            });
+        });
+    });
+</script>
 </body>
 </html>

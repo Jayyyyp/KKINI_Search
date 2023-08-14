@@ -36,11 +36,8 @@ public class CategoriesController {
     public String showSubCategories(@PathVariable Long mainCategoryId, Model model){
         List<Category> subCategories = categoryService.getSubCategories(mainCategoryId);
         List<Item> items = categoryService.getAllItemsByMainCategory(mainCategoryId);
-
         model.addAttribute("subCategories", subCategories);
         model.addAttribute("items", items);
-        System.out.println("=============================");
-        System.out.println(items.size());
         return "/subCategories";
     }
     @GetMapping("/items/{subCategoryId}") // 특정 소분류 카테고리의 아이템을 보여주는 메서드

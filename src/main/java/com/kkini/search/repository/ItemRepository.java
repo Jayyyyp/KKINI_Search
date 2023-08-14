@@ -13,7 +13,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     @Query("SELECT i FROM Item i WHERE " +
             "(LOCATE(:name, i.name) > 0 AND LENGTH(:name) >= 2 OR :name IS NULL) AND " +
-            "(i.category.categoryId = :categoryId OR :categoryId IS NULL) ORDER BY i.averageRating DESC")
+            "i.category.categoryId = :categoryId ORDER BY i.averageRating DESC")
     List<Item> findByNameAndCategoryCategoryId(@Param("name") String name,
                                                @Param("categoryId") Long categoryId);
 
