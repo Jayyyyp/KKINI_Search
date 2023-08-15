@@ -3,12 +3,39 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
     <meta charset="UTF-8">
     <title>Search Results</title>
     <style>
         .item-row:hover {
             background-color: darkgray;
-            cursor: pointer;
+        }
+
+        .item-name-link {
+            text-decoration: none;  /* 링크 밑줄 제거 */
+            color: inherit;  /* 링크 색상을 상속받음 */
+            transition: color 0.3s;  /* 색상 변화 애니메이션 */
+        }
+        .item-name-link:hover {
+            color: blue;  /* 호버 시 색상 변경 */
+        }
+
+        .fa-star {
+            color: #ccc; /* 기본 별 색상 */
+        }
+        .active-star {
+            color: gold; /* 활성화된 별 색상 */
+        }
+
+        .partial-fill {
+            background-color: transparent; /* 배경색을 투명하게 설정 */
+            position: relative;
+        }
+        .half-star::before {
+            content: '\f089'; /* 반 별 모양 */
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            color: gold;
         }
     </style>
 </head>
@@ -29,9 +56,19 @@
     </thead>
     <tbody>
     <c:forEach var="item" items="${items}">
-        <tr data-item-id="${item.id}" class="item-row">
-            <td>${item.name}</td>
-            <td>${item.averageRating}</td>
+        <tr class="item-row">
+            <td>
+                <a href="/items/${item.itemId}" class="item-name-link">${item.name}</a>
+            </td>
+            <td>
+                <div class="rating" data-rating="${item.averageRating}">
+                    <span class="fa fa-star"></span>
+                    <span class="fa fa-star"></span>
+                    <span class="fa fa-star"></span>
+                    <span class="fa fa-star"></span>
+                    <span class="fa fa-star"></span>
+                </div>
+            </td>
             <td><img src="${item.productImage}" alt="${item.name}" width="100"></td>
             <td>${item.lowestPrice}</td>
             <td>${item.category.categoryName}</td>
@@ -39,15 +76,26 @@
     </c:forEach>
     </tbody>
 </table>
-
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const rows = document.querySelectorAll('.item-row');
-        rows.forEach(row => {
-            row.addEventListener('click', function() {
-                const itemId = this.getAttribute('data-item-id');
-                window.location.href = `/items/${itemId}`;
-            });
+        const ratings = document.querySelectorAll('.rating');
+        ratings.forEach(rating => {
+            let rateValue = parseFloat(rating.getAttribute('data-rating'));
+
+            // 소수점 두 번째 자리에서 반올림
+            rateValue = Math.round(rateValue * 10) / 10;
+
+            const fullStars = Math.floor(rateValue);
+            const partialFill = rateValue - fullStars;
+
+            for (let i = 0; i < fullStars; i++) {
+                rating.children[i].classList.add('active-star');
+            }
+
+            if (partialFill >= 0.5) {
+                const halfStar = rating.children[fullStars];
+                halfStar.classList.add('half-star');
+            }
         });
     });
 </script>

@@ -9,7 +9,7 @@
 <h2>Select a Main Category</h2>
 
 <c:forEach var="category" items="${mainCategories}">
-    <a href="/category/${category.categoryId}">${category.categoryName}</a><br>
+    <a href="/category/main/${category.categoryId}">${category.categoryName}</a><br>
 </c:forEach>
 
 <h2>All Items</h2>
@@ -31,7 +31,7 @@
         <tbody>
         <c:forEach var="item" items="${items}">
             <tr>
-                <td><c:out value="${item.id}"/></td>
+                <td><c:out value="${item.itemId}"/></td>
                 <td><c:out value="${item.category.categoryName}"/></td>
                 <td><c:out value="${item.name}"/></td>
                 <td><c:out value="${item.averageRating}"/></td>

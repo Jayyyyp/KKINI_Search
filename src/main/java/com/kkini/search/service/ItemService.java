@@ -2,8 +2,10 @@ package com.kkini.search.service;
 
 import com.kkini.search.entity.Category;
 import com.kkini.search.entity.Item;
+import com.kkini.search.entity.Ratings;
 import com.kkini.search.repository.CategoryRepository;
 import com.kkini.search.repository.ItemRepository;
+import com.kkini.search.repository.RatingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +20,9 @@ public class ItemService {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Autowired
+    private RatingRepository ratingRepository;
 
     public List<Item> searchItemsByNameOrCategory(String name, Long categoryId) {
         if (name != null && !name.trim().isEmpty()) {
@@ -57,9 +62,10 @@ public class ItemService {
         return itemRepository.findByNameContainingOrderByAverageRatingDesc(name);
     }
 
-    public Item getItemById(Long itemId) {
-        return itemRepository.findById(itemId).orElse(null);
+    public Item getItemById(Long id) {
+        return itemRepository.findById(id).orElse(null);
     }
+
 }
 
 

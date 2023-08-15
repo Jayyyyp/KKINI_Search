@@ -9,7 +9,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -32,7 +31,7 @@ public class CategoriesController {
         model.addAttribute("items", items);
         return "/mainCategories";
     }
-    @GetMapping("/{mainCategoryId}") // 소분류 카테고리를 보여주는 메서드
+    @GetMapping("/main/{mainCategoryId}") // 소분류 카테고리를 보여주는 메서드
     public String showSubCategories(@PathVariable Long mainCategoryId, Model model){
         List<Category> subCategories = categoryService.getSubCategories(mainCategoryId);
         List<Item> items = categoryService.getAllItemsByMainCategory(mainCategoryId);

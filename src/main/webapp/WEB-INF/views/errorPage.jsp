@@ -7,6 +7,7 @@
     <title>Insert title here</title>
 </head>
 <body>
+    <h1>에러난거임</h1>
     <a href="/items/search">Back to Search Page</a>
 </body>
 </html>

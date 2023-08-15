@@ -1,7 +1,9 @@
 package com.kkini.search.controller;
 
 import com.kkini.search.entity.Item;
+import com.kkini.search.entity.Ratings;
 import com.kkini.search.service.ItemService;
+import com.kkini.search.service.RatingService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -19,9 +21,12 @@ public class ItemController {
 
     private ItemService itemService;
 
+    private RatingService ratingService;
+
     @Autowired
-    public ItemController (ItemService itemService){
+    public ItemController (ItemService itemService, RatingService ratingService){
         this.itemService = itemService;
+        this.ratingService = ratingService;
     }
 
     // 검색 기능 구현
@@ -57,10 +62,17 @@ public class ItemController {
         return "XMLHttpRequest".equals(requestedWithHeader);
     }
 
-    @GetMapping("/{itemId}")
-    public String viewItemDetails(@PathVariable Long itemId, Model model){
-        Item item = itemService.getItemById(itemId);
+    @GetMapping("/{id}")
+    public String viewItemDetails(@PathVariable Long id, Model model){
+        Item item = itemService.getItemById(id);
+
+        if(item == null) {
+            // 적절한 오류 페이지로 리다이렉트하거나 오류 메시지를 표시
+            return "errorPage";
+        }
+        List<Ratings> ratings = ratingService.getRatingForItemOrderedByDate(id);
         model.addAttribute("item", item);
-        return "itemDetails";
+        model.addAttribute("ratings", ratings); // 평점들을 모델에 추가
+        return "itemDetail";
     }
 }
