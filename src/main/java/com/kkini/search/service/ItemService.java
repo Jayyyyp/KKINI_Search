@@ -62,8 +62,8 @@ public class ItemService {
         return itemRepository.findByNameContainingOrderByAverageRatingDesc(name);
     }
 
-    public Item getItemById(Long id) {
-        return itemRepository.findById(id).orElse(null);
+    public Item getItemById(Long itemId) {
+        return itemRepository.findById(itemId).orElse(null);
     }
 
 }

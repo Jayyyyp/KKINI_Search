@@ -26,3 +26,7 @@ INSERT INTO Item (category_id, name, average_rating, product_image, lowest_price
                 (3, '광양식 소불고기', 3.35, 'https://sitem.ssgcdn.com/30/29/47/item/1000052472930_i1_290.jpg', 7900),
                 (3, '쪽파강회', 3.0, 'https://sitem.ssgcdn.com/38/51/65/item/1000043655138_i1_290.jpg', 5900),
                 (6, '건강한 닭가슴살', 4.8, 'https://sitem.ssgcdn.com/31/19/40/item/1000084401931_i1_1100.jpg', 4480);
+INSERT INTO Users (user_name) VALUES
+                ('찹찹'),
+                ('에쵸'),
+                ('현섭');

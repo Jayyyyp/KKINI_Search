@@ -14,8 +14,9 @@ public class Ratings {
     @Column(name = "item_id")
     private Long itemId;
 
-    @Column(name = "tempUserId")
-    private String tempUserId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private Users users;
 
     @Column(name = "rating_value")
     private int ratingValue;

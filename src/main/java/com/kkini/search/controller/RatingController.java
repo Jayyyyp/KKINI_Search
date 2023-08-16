@@ -1,65 +1,83 @@
 package com.kkini.search.controller;
 
-import com.kkini.search.Cookie.CookieUtils;
 import com.kkini.search.entity.Ratings;
 import com.kkini.search.service.RatingService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Controller
 @RequestMapping("/rate")
 public class RatingController {
 
-    @Autowired
     private RatingService ratingService;
-
     @Autowired
-    private CookieUtils cookieUtils;
+    public RatingController(RatingService ratingService){
+        this.ratingService = ratingService;
+    }
+
 
     @PostMapping("/rating/{itemId}")
     public String rateItem(@PathVariable Long itemId, @RequestParam int ratingValue,
-                           @RequestParam String ratingText, @RequestParam String tempUserId,
-                           Model model, HttpServletResponse response) { // HttpServletResponse 추가
-        ratingService.saveRating(itemId, tempUserId, ratingValue, ratingText);
-
-        // 쿠키 설정
-        cookieUtils.setCookie(response, "tempUserId", tempUserId, 60 * 60 * 24); // 1일 유효 기간
-
-        return "redirect:/items/" + itemId;
+                           @RequestParam String ratingText, @RequestParam Long userId) {
+        Ratings savedRating = ratingService.saveRating(itemId, userId, ratingValue, ratingText);
+        return "redirect:/items/" + savedRating.getItemId();
     }
 
-    @PutMapping("edit/{ratingId}")
-    public ResponseEntity<Ratings> updateRating(@PathVariable Long ratingId, @RequestBody Ratings updatedRating, HttpServletRequest request) {
-        String tempUserId = cookieUtils.getCookieValue(request, "tempUserId");
-        if (tempUserId == null || !ratingService.isAuthorizedToUpdate(ratingId, tempUserId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
-        }
-        Ratings rating = ratingService.updateRating(ratingId, updatedRating.getRatingValue(), updatedRating.getRatingText());
-        return ResponseEntity.ok(rating);
+    @GetMapping("/write/{itemId}")
+    public String writeRating(@PathVariable Long itemId, HttpServletRequest request ,
+                              Model model){
+        Long userId = (Long) request.getSession().getAttribute("userId");
+        model.addAttribute("userId", userId);
+        model.addAttribute("itemId", itemId);
+        return "writeRating";
     }
 
-    @DeleteMapping("delete/{ratingId}")
-    public ResponseEntity<String> deleteRating(@PathVariable Long ratingId, HttpServletRequest request) {
-        String tempUserId = cookieUtils.getCookieValue(request, "tempUserId");
-        if (tempUserId == null || !ratingService.isAuthorizedToDelete(ratingId, tempUserId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not authorized to delete this rating");
-        }
-        ratingService.deleteRating(ratingId);
-        return ResponseEntity.ok("Rating deleted successfully");
+    @GetMapping("/userRatings/{userId}")
+    public String getUserRatings(@PathVariable Long userId, Model model){
+        List<Ratings> userRatings = ratingService.getRatingsForUser(userId);
+        model.addAttribute("userRatings", userRatings);
+        return "userRatings";
     }
-    @GetMapping("/{ratingId}")
-    public ResponseEntity<Ratings> getRating(@PathVariable Long ratingId) {
+
+
+    @PostMapping("/login")
+    public String handleLogin(@RequestParam String userName, @RequestParam Long userId,
+                              HttpServletRequest request){
+        // 사용자 ID 저장
+        request.getSession().setAttribute("userId", userId);
+        return "redirect:/items/search";
+    }
+
+    // 평점 수정 페이지
+    @GetMapping("/edit/{ratingId}")
+    public String editRating(@PathVariable Long ratingId, Model model, HttpServletRequest request) {
+        Long userId = (Long) request.getSession().getAttribute("userId");
         Ratings rating = ratingService.findRatingById(ratingId);
-        if (rating == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+
+        if (rating == null || !rating.getUsers().getUserId().equals(userId)) {
+            return "errorPage"; // 적절한 오류 페이지
         }
-        return ResponseEntity.ok(rating);
+
+        model.addAttribute("rating", rating);
+        return "editRating";
+    }
+
+    @GetMapping("/delete/{ratingId}")
+    public String deleteRating(@PathVariable Long ratingId, HttpServletRequest request) {
+        Long userId = (Long) request.getSession().getAttribute("userId");
+        Ratings ratingToDelete = ratingService.findRatingById(ratingId);
+
+        if (ratingToDelete == null || !ratingToDelete.getUsers().getUserId().equals(userId)) {
+            return "errorPage"; // 적절한 오류 페이지
+        }
+
+        ratingService.deleteRating(ratingId, userId);
+        return "redirect:/items/" + ratingToDelete.getItemId();
     }
 
 }

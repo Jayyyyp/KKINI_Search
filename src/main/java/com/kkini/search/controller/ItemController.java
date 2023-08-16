@@ -62,17 +62,18 @@ public class ItemController {
         return "XMLHttpRequest".equals(requestedWithHeader);
     }
 
-    @GetMapping("/{id}")
-    public String viewItemDetails(@PathVariable Long id, Model model){
-        Item item = itemService.getItemById(id);
+    @GetMapping("/{itemId}")
+    public String getItemDetail(@PathVariable Long itemId, Model model, HttpServletRequest request) {
+        Item item = itemService.getItemById(itemId);  // Fetch the item detail
+        List<Ratings> ratings = ratingService.getRatingsForItem(itemId); // Fetch all ratings for the item
 
-        if(item == null) {
-            // 적절한 오류 페이지로 리다이렉트하거나 오류 메시지를 표시
-            return "errorPage";
-        }
-        List<Ratings> ratings = ratingService.getRatingForItemOrderedByDate(id);
+        Long userId = (Long) request.getSession().getAttribute("userId");
+
         model.addAttribute("item", item);
-        model.addAttribute("ratings", ratings); // 평점들을 모델에 추가
-        return "itemDetail";
+        model.addAttribute("ratings", ratings);
+        model.addAttribute("userId", userId);
+
+        return "itemDetail";  // Assuming the JSP name is itemDetail.jsp
     }
+
 }
