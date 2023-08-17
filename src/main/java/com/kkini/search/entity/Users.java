@@ -15,6 +15,6 @@ public class Users {
     @Column(nullable = false)
     private String userName;
 
-    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "users", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Ratings> ratings; // Ratings 와의 양방향 관계 설정
 }

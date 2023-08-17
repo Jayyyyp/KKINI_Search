@@ -65,8 +65,10 @@
     </style>
 </head>
 <body>
+
 <h1>Item Detail</h1>
 <a href="/items/search" class="top-right-link">Back to Search</a>
+
 <!-- 상품 기본 정보 섹션 -->
 <div class="item-info">
     <h2>Product Information</h2>
@@ -77,28 +79,35 @@
     <div class="rating-display" data-rating="${item.averageRating}" style="display: inline-block;">
         <span class="fa fa-star"></span>
     </div>
-    ${item.averageRating}
+    <fmt:formatNumber value="${item.averageRating}" pattern="#.##"/>
     <button onclick="location.href='/rate/write/${item.itemId}'" style="display: inline-block;">평점 작성하러가기</button>
     </p>
     <img src="${item.productImage}" alt="${item.name}" width="250">
 </div>
 
-<div id="userRatings"></div>
+<div class="search-section">
+    <input type="text" id="userIdSearch" placeholder="Enter userId to search">
+    <button onclick="searchByUserId()">Search by userId</button>
+    <button onclick="showAllRatings()">Show All</button>
+</div>
 
+<div id="userRatings"></div>
     <!--평점 목록-->
 <div class="rating-list">
     <c:forEach items="${ratings}" var="rating">
         <div class="rating-item" data-user-id="${rating.users.userId}">
             <div>
                 <p>${rating.ratingText}</p>
-                <c:forEach begin="1" end="${rating.ratingValue}" var="star">
-                    <span class="fa fa-star" style="color: gold;"></span>
+                <c:forEach varStatus="status" begin="1" end="5">
+                    <c:choose>
+                        <c:when test="${status.index < rating.ratingValue}">
+                            <span class="fa fa-star" style="color: gold;"></span>
+                        </c:when>
+                        <c:otherwise>
+                            <span class="fa fa-star" style="color: gray;"></span>
+                        </c:otherwise>
+                    </c:choose>
                 </c:forEach>
-                <c:forEach begin="${rating.ratingValue + 1}" end="5" var="emptyStar">
-                    <span class="fa fa-star" style="color: gray;"></span>
-                </c:forEach>
-
-                <!-- 수정 및 삭제 버튼을 항상 표시 -->
                 <a href="/rate/edit/${rating.ratingId}">수정</a>
                 <a href="/rate/delete/${rating.ratingId}">삭제</a>
             </div>
@@ -115,7 +124,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            console.log("Document is fully loaded.");
             // 상품의 평점 표시
             setRatingDisplay();
 
@@ -129,20 +137,37 @@
         });
 
         function setRatingDisplay() {
-            console.log("setRatingDisplay is called.");
             const ratingDisplay = document.querySelector('.rating-display');
             const displayRateValue = parseFloat(ratingDisplay.getAttribute('data-rating'));
-            console.log("Display Rate Value:", displayRateValue);
             const fullStars = Math.floor(displayRateValue);
             const hasHalfStar = displayRateValue - fullStars >= 0.5;
 
-            for (let i = 0; i < fullStars && i < ratingDisplay.children.length; i++) {
-                ratingDisplay.children[i].classList.add('active-star');
+            for (let i = 0; i < fullStars; i++) {
+                if (ratingDisplay.children[i]) {
+                    ratingDisplay.children[i].classList.add('active-star');
+                }
             }
             if (hasHalfStar && fullStars < ratingDisplay.children.length) {
                 ratingDisplay.children[fullStars].classList.add('half-star');
             }
         }
+
+        function searchByUserId() {
+            const userId = document.getElementById('userIdSearch').value;
+            const ratingItems = document.querySelectorAll('.rating-item');
+
+            ratingItems.forEach(item => {
+                item.style.display = (item.getAttribute('data-user-id') === userId) ? 'block' : 'none';
+            });
+        }
+
+        function showAllRatings() {
+            document.querySelectorAll('.rating-item').forEach(item => item.style.display = 'block');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setRatingDisplay();
+        });
     </script>
 </body>
 </html>

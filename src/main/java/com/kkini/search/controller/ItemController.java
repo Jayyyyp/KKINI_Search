@@ -64,16 +64,18 @@ public class ItemController {
 
     @GetMapping("/{itemId}")
     public String getItemDetail(@PathVariable Long itemId, Model model, HttpServletRequest request) {
-        Item item = itemService.getItemById(itemId);  // Fetch the item detail
-        List<Ratings> ratings = ratingService.getRatingsForItem(itemId); // Fetch all ratings for the item
-
+        Item item = itemService.getItemById(itemId);
+        if (item == null) {
+            return "errorPage";
+        }
+        List<Ratings> ratings = ratingService.getRatingsForItem(itemId);
         Long userId = (Long) request.getSession().getAttribute("userId");
 
         model.addAttribute("item", item);
         model.addAttribute("ratings", ratings);
         model.addAttribute("userId", userId);
 
-        return "itemDetail";  // Assuming the JSP name is itemDetail.jsp
+        return "itemDetail";
     }
 
 }

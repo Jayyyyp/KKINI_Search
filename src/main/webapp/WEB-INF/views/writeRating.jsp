@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -16,7 +17,9 @@
             align-items: center;
             gap: 5px;
         }
-
+        .active-star {
+            color: gold; /* 활성화된 별 색상 */
+        }
         .rating-input .fa-star {
             color: #ccc; /* 기본 별 색상 */
             cursor: pointer;
@@ -29,26 +32,31 @@
 <body>
 <!-- 상품 기본 정보 섹션 -->
 <div class="item-info">
-    <h2>Product Information</h2>
-    <p><strong>Category: </strong> ${item.category.categoryName}</p>
-    <p><strong>Name: </strong> ${item.name}</p>
+    <h2>상품 정보</h2>
+    <p><strong>카테고리: </strong> ${item.category.categoryName}</p>
+    <p><strong>이름: </strong> ${item.name}</p>
     <p>
         <strong>평점: </strong>
     <div class="rating-display" data-rating="${item.averageRating}" style="display: inline-block;">
         <span class="fa fa-star"></span>
     </div>
-    ${item.averageRating}
+    <fmt:formatNumber value="${item.averageRating}" pattern="#.##"/>
     </p>
     <img src="${item.productImage}" alt="${item.name}" width="250">
 </div>
+
+
+<h2>User Information</h2>
+
+<form action="/rate/rating/${itemId}" method="post">
+    <label for="userId">User ID:</label>
+    <input type="text" id="userId" name="userId" required>  <!-- 사용자에게 userId를 입력받는 input 필드 -->
+    <br><br>
 
 <!--상품 평점 입력 섹션 -->
 <h1>Write a Rating for Item</h1>
 
 <form action="/rate/rating/${itemId}" method="post">
-    <label for="userId">User ID:</label>
-    <input type="number" id="userId" name="userId" required>
-    <br><br>
     <label for="ratingValue">Rating Value (1-5):</label>
     <div class="rating-input">
         <c:forEach var="i" begin="1" end="5">
@@ -60,10 +68,6 @@
 
     <label for="ratingText">Rating Text:</label>
     <textarea name="ratingText" rows="4" cols="50" required></textarea><br><br>
-
-    <!-- 임시 사용자 ID -->
-    <input type="hidden" name="userId" value="${userId}">
-
     <input type="submit" value="Submit Rating">
 </form>
 <script>
@@ -98,6 +102,5 @@
         });
     }
 </script>
-
 </body>
 </html>

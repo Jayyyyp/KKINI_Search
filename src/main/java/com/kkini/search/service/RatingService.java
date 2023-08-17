@@ -5,12 +5,14 @@ import com.kkini.search.entity.Users;
 import com.kkini.search.repository.ItemRepository;
 import com.kkini.search.repository.RatingRepository;
 import com.kkini.search.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@Transactional
 public class RatingService {
 
     private final RatingRepository ratingRepository;
@@ -34,28 +36,36 @@ public class RatingService {
         return ratingRepository.findByItemId(itemId);
     }
 
-    public Ratings saveRating(Long itemId, Long tempUserId, int ratingValue, String rateText) {
+    public Ratings saveRating(Long itemId, Long userId, int ratingValue, String rateText) {
         Ratings ratings = new Ratings();
-        Users users = userRepository.findById(tempUserId).orElse(null);
+        Users users = userRepository.findById(userId).orElse(null);
         ratings.setItemId(itemId);
         ratings.setUsers(users);
         ratings.setRatingValue(ratingValue);
         ratings.setRatingText(rateText);
 
-        Ratings savedRating = ratingRepository.save(ratings);  // 저장된 평점 객체를 저장
+        Ratings savedRating = ratingRepository.save(ratings);
 
         updateAverageRating(itemId);
 
-        return savedRating;  // 저장된 평점 객체를 반환
+        return savedRating;
     }
 
-    private void updateAverageRating(Long itemId) {
+    public Ratings findById(Long ratingId, Long userId) {
+        return ratingRepository.findById(ratingId)
+                .orElseThrow(() -> new IllegalArgumentException("Rating not found"));
+    }
+
+    public void delete(Ratings rating) {
+        ratingRepository.delete(rating);
+    }
+    public void updateAverageRating(Long itemId) {
         List<Ratings> ratings = ratingRepository.findByItemId(itemId);
-        double sum = 0;
-        for (Ratings rating : ratings) {
-            sum += rating.getRatingValue();
-        }
-        double average = sum / ratings.size();
+
+        double average = ratings.stream()
+                .mapToInt(Ratings::getRatingValue)
+                .average()
+                .orElse(0.0);
 
         itemRepository.saveUpdatedRating(itemId, average);
     }
@@ -78,15 +88,8 @@ public class RatingService {
         rating.setRatingValue(ratingValue);
         rating.setRatingText(ratingText);
         ratingRepository.save(rating);
-    }
 
-    public void deleteRating(Long ratingId, Long userId) {
-        Ratings rating = ratingRepository.findById(ratingId).orElse(null);
-
-        if (rating == null || !rating.getUsers().getUserId().equals(userId)) {
-            throw new IllegalArgumentException("Invalid rating or user");
-        }
-
-        ratingRepository.delete(rating);
+        Long itemId = rating.getItemId();
+        updateAverageRating(itemId);
     }
 }
