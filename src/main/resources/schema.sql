@@ -38,6 +38,7 @@ CREATE TABLE `Ratings`
     `user_id` bigint NOT NULL,
     `rating_value` bigint NOT NULL,
     `rating_text` TEXT,
+    `rating_image` TEXT,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (`item_id`) REFERENCES `Item`(`item_id`),

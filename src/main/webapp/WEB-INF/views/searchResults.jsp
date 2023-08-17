@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,6 +8,11 @@
     <meta charset="UTF-8">
     <title>Search Results</title>
     <style>
+        .rating-display {
+            border: 1px solid #e0e0e0;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
         .item-row:hover {
             background-color: darkgray;
         }
@@ -21,21 +27,7 @@
         }
 
         .fa-star {
-            color: #ccc; /* 기본 별 색상 */
-        }
-        .active-star {
-            color: gold; /* 활성화된 별 색상 */
-        }
-
-        .partial-fill {
-            background-color: transparent; /* 배경색을 투명하게 설정 */
-            position: relative;
-        }
-        .half-star::before {
-            content: '\f089'; /* 반 별 모양 */
-            font-family: "Font Awesome 5 Free";
-            font-weight: 900;
-            color: gold;
+            color: gold; /* 기본 별 색상 */
         }
     </style>
 </head>
@@ -61,13 +53,10 @@
                 <a href="/items/${item.itemId}" class="item-name-link">${item.name}</a>
             </td>
             <td>
-                <div class="rating" data-rating="${item.averageRating}">
+                <p class="rating-display">
                     <span class="fa fa-star"></span>
-                    <span class="fa fa-star"></span>
-                    <span class="fa fa-star"></span>
-                    <span class="fa fa-star"></span>
-                    <span class="fa fa-star"></span>
-                </div>
+                   <fmt:formatNumber value="${item.averageRating}" pattern="#.##"/>
+                </p>
             </td>
             <td><img src="${item.productImage}" alt="${item.name}" width="100"></td>
             <td>${item.lowestPrice}</td>

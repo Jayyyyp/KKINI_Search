@@ -24,6 +24,9 @@ public class Ratings {
     @Column(name = "rating_text")
     private String ratingText;
 
+    @Column(name = "rating_image", nullable = true)
+    private String ratingImage;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 

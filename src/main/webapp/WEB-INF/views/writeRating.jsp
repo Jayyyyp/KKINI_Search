@@ -30,6 +30,7 @@
     </style>
 </head>
 <body>
+
 <!-- 상품 기본 정보 섹션 -->
 <div class="item-info">
     <h2>상품 정보</h2>
@@ -45,18 +46,14 @@
     <img src="${item.productImage}" alt="${item.name}" width="250">
 </div>
 
+<!--상품 평점 입력 섹션 -->
+<h1>Write a Rating for Item</h1>
 
-<h2>User Information</h2>
-
-<form action="/rate/rating/${itemId}" method="post">
+<form action="/rate/rating/${itemId}" method="post" enctype="multipart/form-data">
     <label for="userId">User ID:</label>
     <input type="text" id="userId" name="userId" required>  <!-- 사용자에게 userId를 입력받는 input 필드 -->
     <br><br>
 
-<!--상품 평점 입력 섹션 -->
-<h1>Write a Rating for Item</h1>
-
-<form action="/rate/rating/${itemId}" method="post">
     <label for="ratingValue">Rating Value (1-5):</label>
     <div class="rating-input">
         <c:forEach var="i" begin="1" end="5">
@@ -66,41 +63,59 @@
     </div>
     <br><br>
 
+    <label for="ratingImage">Upload Rating Images:</label>
+    <!-- 평점 이미지 표시 -->
+    <!-- 이미지 선택 입력 필드 -->
+    <input type="file" id="imageInput" name="ratingImage" onchange="previewImage(event)">
+
+    <!-- 이미지 미리보기 -->
+    <img id="imagePreview" width="100">
+
     <label for="ratingText">Rating Text:</label>
     <textarea name="ratingText" rows="4" cols="50" required></textarea><br><br>
     <input type="submit" value="Submit Rating">
 </form>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const ratingStars = document.querySelectorAll('.rating-input .fa-star');
-        ratingStars.forEach((star, index) => {
-            star.addEventListener('click', function() {
-                resetStars();  // reset previous selection
-                for(let i=0; i<=index; i++) {
-                    ratingStars[i].classList.add('active-star');
-                }
-                document.getElementById('ratingValue').value = index + 1;
+        document.addEventListener('DOMContentLoaded', function() {
+            const ratingStars = document.querySelectorAll('.rating-input .fa-star');
+            ratingStars.forEach((star, index) => {
+                star.addEventListener('click', function() {
+                    resetStars();  // reset previous selection
+                    for(let i=0; i<=index; i++) {
+                        ratingStars[i].classList.add('active-star');
+                    }
+                    document.getElementById('ratingValue').value = index + 1;
+                });
             });
+            setItemRatingDisplay();
         });
-        setItemRatingDisplay();
-    });
 
-    function setItemRatingDisplay() {
-        const ratingDisplay = document.querySelector('.item-info .rating-display');
-        const displayRateValue = parseFloat(ratingDisplay.getAttribute('data-rating'));  // 변경된 부분
-        const fullStars = Math.floor(displayRateValue);
+        function setItemRatingDisplay() {
+            const ratingDisplay = document.querySelector('.item-info .rating-display');
+            const displayRateValue = parseFloat(ratingDisplay.getAttribute('data-rating'));  // 변경된 부분
+            const fullStars = Math.floor(displayRateValue);
 
-        for (let i = 0; i < fullStars; i++) {
-            ratingDisplay.children[i].classList.add('active-star');
+            for (let i = 0; i < fullStars && i < ratingDisplay.children.length; i++) {
+                ratingDisplay.children[i].classList.add('active-star');
+            }
         }
-    }
 
-    function resetStars() {
-        const ratingStars = document.querySelectorAll('.rating-input .fa-star');
-        ratingStars.forEach(star => {
-            star.classList.remove('active-star');
-        });
-    }
-</script>
+        function resetStars() {
+            const ratingStars = document.querySelectorAll('.rating-input .fa-star');
+            ratingStars.forEach(star => {
+                star.classList.remove('active-star');
+            });
+        }
+        function previewImage(event) {
+            var reader = new FileReader();
+            reader.onload = function() {
+                // 이미지 미리보기에 데이터 URL 설정
+                var output = document.getElementById('imagePreview');
+                output.src = reader.result;
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+    </script>
 </body>
 </html>

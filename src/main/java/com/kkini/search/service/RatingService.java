@@ -6,12 +6,22 @@ import com.kkini.search.repository.ItemRepository;
 import com.kkini.search.repository.RatingRepository;
 import com.kkini.search.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 @Transactional
 public class RatingService {
 
@@ -19,14 +29,8 @@ public class RatingService {
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
 
-    @Autowired
-    public RatingService(RatingRepository ratingRepository,
-                         UserRepository userRepository,
-                         ItemRepository itemRepository) {
-        this.ratingRepository = ratingRepository;
-        this.userRepository = userRepository;
-        this.itemRepository = itemRepository;
-    }
+    @Value("${app.image-storage-path}")
+    private String imageStoragePath;
 
     public List<Ratings> getRatingForItemOrderedByDate(Long itemId) {
         return ratingRepository.findByItemIdOrderByUpdatedAtDesc(itemId);
@@ -36,20 +40,32 @@ public class RatingService {
         return ratingRepository.findByItemId(itemId);
     }
 
-    public Ratings saveRating(Long itemId, Long userId, int ratingValue, String rateText) {
-        Ratings ratings = new Ratings();
+    public Ratings saveRating(Long itemId, Long userId, int ratingValue, String rateText, String rateImage) {
         Users users = userRepository.findById(userId).orElse(null);
-        ratings.setItemId(itemId);
-        ratings.setUsers(users);
-        ratings.setRatingValue(ratingValue);
-        ratings.setRatingText(rateText);
+        Ratings rating = new Ratings();
+        rating.setItemId(itemId);
+        rating.setUsers(users);
+        rating.setRatingValue(ratingValue);
+        rating.setRatingText(rateText);
+        rating.setRatingImage(rateImage);  // 이미지 설정
 
-        Ratings savedRating = ratingRepository.save(ratings);
+        Ratings savedRating = ratingRepository.save(rating);
 
         updateAverageRating(itemId);
 
         return savedRating;
     }
+
+    public String saveImage(MultipartFile imageFile) throws IOException {
+        String originalFilename = imageFile.getOriginalFilename();
+        String savePath = imageStoragePath + originalFilename;
+
+        File fileToSave = new File(savePath);
+        imageFile.transferTo(fileToSave); // 이미지 파일을 지정한 위치에 저장
+
+        return "/images/" + originalFilename; // 저장된 이미지의 URL을 반환
+    }
+
 
     public Ratings findById(Long ratingId, Long userId) {
         return ratingRepository.findById(ratingId)

@@ -9,7 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -48,13 +52,27 @@ public class RatingController {
 
     @PostMapping("/rating/{itemId}")
     public String submitRating(@PathVariable Long itemId,
-                               @RequestParam Long userId,
+                               HttpServletRequest request,
                                @RequestParam int ratingValue,
-                               @RequestParam String ratingText) {
-        // 평점 저장 로직 구현
-        ratingService.saveRating(itemId, userId, ratingValue, ratingText);
+                               @RequestParam String ratingText,
+                               @RequestParam(value = "ratingImage", required = false) MultipartFile imageFile,
+                               Model model) {
+        Ratings rating = new Ratings();
+        Long userId = (Long) request.getSession().getAttribute("userId");
 
-        return "redirect:/items/" + itemId; // 아이템 상세 페이지로
+        if (imageFile != null && !imageFile.isEmpty()) {
+            try {
+                String savedImagePath = ratingService.saveImage(imageFile);
+                rating.setRatingImage(savedImagePath); // Ratings 객체에 ratingImage 설정
+            } catch (IOException e) {
+                e.printStackTrace();
+                return "errorPage";
+            }
+        }
+
+        ratingService.saveRating(itemId, userId, ratingValue, ratingText, rating.getRatingImage()); // ratingImage 사용
+        model.addAttribute("rating", ratingService.getRatingsForItem(itemId));
+        return "redirect:/items/" + itemId;
     }
 
     @GetMapping("/userRatings/{userId}")
@@ -82,7 +100,7 @@ public class RatingController {
         // 로그인 기능 구현하면 활성화
         if (rating == null || !rating.getUsers().getUserId().equals(userId)) {
             return "errorPage";
-       }
+        }
 
         model.addAttribute("rating", rating);
         return "editRating";
@@ -122,4 +140,3 @@ public class RatingController {
 
 
 }
-

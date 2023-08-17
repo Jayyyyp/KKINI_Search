@@ -1,19 +1,24 @@
 package com.kkini.search.controller;
 
-import com.kkini.search.entity.Category;
 import com.kkini.search.entity.Item;
 import com.kkini.search.entity.Ratings;
 import com.kkini.search.service.ItemService;
 import com.kkini.search.service.RatingService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Controller
@@ -79,5 +84,19 @@ public class ItemController {
 
         return "itemDetail";
     }
+    @GetMapping("/{imageName}.png")
+    public ResponseEntity<Resource> fetchImage(@PathVariable String imageName) {
+        Path imagePath = Paths.get("your-image-storage-directory", imageName + ".png");
+
+        if (Files.exists(imagePath)) {
+            Resource resource = new FileSystemResource(imagePath);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.IMAGE_PNG)
+                    .body(resource);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 
 }

@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -20,17 +21,17 @@
             overflow-y: auto; /* 스크롤 추가 */
         }
         .rating-display {
-            color: #ccc; /* 기본 별 색상 */
+            color: #ccc;
         }
         .active-star {
-            color: gold; /* 활성화된 별 색상 */
+            color: gold;
         }
         .partial-fill {
-            background-color: transparent; /* 배경색을 투명하게 설정 */
+            background-color: transparent;
             position: relative;
         }
         .half-star::before {
-            content: '\f089'; /* 반 별 모양 */
+            content: '\f089';
             font-family: "Font Awesome 5 Free";
             font-weight: 900;
             color: gold;
@@ -92,12 +93,17 @@
 </div>
 
 <div id="userRatings"></div>
-    <!--평점 목록-->
+<!--평점 목록-->
 <div class="rating-list">
-    <c:forEach items="${ratings}" var="rating">
+    <c:forEach items="${ratings}" var="rating" varStatus="status">
         <div class="rating-item" data-user-id="${rating.users.userId}">
             <div>
                 <p>${rating.ratingText}</p>
+
+                <!-- 평점 이미지 표시 -->
+                <img src="${rating.ratingImage}" alt="Rating Image" width="100">
+
+                <!-- 평점 별점 표시 -->
                 <c:forEach varStatus="status" begin="1" end="5">
                     <c:choose>
                         <c:when test="${status.index < rating.ratingValue}">
@@ -116,58 +122,68 @@
 </div>
 
 <!-- 상품 상세 정보 섹션 -->
-    <div class="item-detail">
-        <h2>Product Details</h2>
-        <!-- 임의 내용 -->
-        <p>상품 상세 설명임</p>
-    </div>
+<div class="item-detail">
+    <h2>Product Details</h2>
+    <!-- 임의 내용 -->
+    <p>상품 상세 설명임</p>
+</div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // 상품의 평점 표시
-            setRatingDisplay();
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 상품의 평점 표시
+        setRatingDisplay();
 
-            // 평점 입력
-            const ratingInputStars = document.querySelectorAll('.rating-input .fa-star');
-            ratingInputStars.forEach((star, index) => {
-                star.addEventListener('click', function() {
-                    document.querySelector(`#star${index + 1}`).checked = true;
-                });
+        // 평점 입력
+        const ratingInputStars = document.querySelectorAll('.rating-input .fa-star');
+        ratingInputStars.forEach((star, index) => {
+            star.addEventListener('click', function() {
+                document.querySelector(`#star${index + 1}`).checked = true;
             });
         });
+    });
 
-        function setRatingDisplay() {
-            const ratingDisplay = document.querySelector('.rating-display');
-            const displayRateValue = parseFloat(ratingDisplay.getAttribute('data-rating'));
-            const fullStars = Math.floor(displayRateValue);
-            const hasHalfStar = displayRateValue - fullStars >= 0.5;
+    function setRatingDisplay() {
+        const ratingDisplay = document.querySelector('.rating-display');
+        const displayRateValue = parseFloat(ratingDisplay.getAttribute('data-rating'));
+        const fullStars = Math.floor(displayRateValue);
+        const hasHalfStar = displayRateValue - fullStars >= 0.5;
 
-            for (let i = 0; i < fullStars; i++) {
-                if (ratingDisplay.children[i]) {
-                    ratingDisplay.children[i].classList.add('active-star');
-                }
-            }
-            if (hasHalfStar && fullStars < ratingDisplay.children.length) {
-                ratingDisplay.children[fullStars].classList.add('half-star');
+        for (let i = 0; i < fullStars; i++) {
+            if (ratingDisplay.children[i]) {
+                ratingDisplay.children[i].classList.add('active-star');
             }
         }
-
-        function searchByUserId() {
-            const userId = document.getElementById('userIdSearch').value;
-            const ratingItems = document.querySelectorAll('.rating-item');
-
-            ratingItems.forEach(item => {
-                item.style.display = (item.getAttribute('data-user-id') === userId) ? 'block' : 'none';
-            });
+        if (hasHalfStar && fullStars < ratingDisplay.children.length) {
+            ratingDisplay.children[fullStars].classList.add('half-star');
         }
+    }
 
-        function showAllRatings() {
-            document.querySelectorAll('.rating-item').forEach(item => item.style.display = 'block');
-        }
+    function searchByUserId() {
+        const userId = document.getElementById('userIdSearch').value;
+        const ratingItems = document.querySelectorAll('.rating-item');
 
-        document.addEventListener('DOMContentLoaded', function() {
-            setRatingDisplay();
+        ratingItems.forEach(item => {
+            item.style.display = (item.getAttribute('data-user-id') === userId) ? 'block' : 'none';
         });
-    </script>
+    }
+
+    function showAllRatings() {
+        document.querySelectorAll('.rating-item').forEach(item => item.style.display = 'block');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        setRatingDisplay();
+
+    });
+    function previewImage(event, index) {
+        var reader = new FileReader();
+        reader.onload = function() {
+            // 이미지 미리보기에 데이터 URL 설정
+            var output = document.getElementById('imagePreview' + index);
+            output.src = reader.result;
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+</script>
 </body>
 </html>
