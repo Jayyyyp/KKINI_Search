@@ -1,5 +1,6 @@
 package com.kkini.search.controller;
 
+import com.kkini.search.entity.Category;
 import com.kkini.search.entity.Item;
 import com.kkini.search.entity.Ratings;
 import com.kkini.search.service.ItemService;
@@ -36,15 +37,15 @@ public class ItemController {
                               Model model, HttpServletRequest request) {
 
         if (isAjaxRequest(request)) {
-            List<Item> items = itemService.autoCompleteItems(name);
-            return items.stream().map(Item::getName).collect(Collectors.toList());
+            List<String> autoCompletes = itemService.autoCompleteNames(name);
+            return autoCompletes;
         }
 
         List<Item> items;
         if (name != null && name.length() >= 2) {
-            items = itemService.searchItemsByNameOrCategory(name, categoryId);
+            items = itemService.searchItemsByName(name, categoryId);
         } else if (categoryId != null) {
-            items = itemService.searchItemsByNameOrCategory(null, categoryId);
+            items = itemService.searchItemsByName(null, categoryId);
         } else {
             model.addAttribute("items", Collections.emptyList());
             return "search";
@@ -57,6 +58,7 @@ public class ItemController {
             return "noItems";
         }
     }
+
     private boolean isAjaxRequest(HttpServletRequest request) {
         String requestedWithHeader = request.getHeader("X-Requested-With");
         return "XMLHttpRequest".equals(requestedWithHeader);

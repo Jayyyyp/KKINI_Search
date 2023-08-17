@@ -5,10 +5,10 @@ INSERT INTO Category(category_id, category_name) VALUES
 
 -- KKINI와 KKINI GREEN의 소분류
 INSERT INTO Category(category_name, parent_id) VALUES
-                    ('음식', 1),
-                    ('맛없는거', 2),
+                    ('음식들이다', 1),
+                    ('이상한거', 2),
                     ('풀', 2),
-                    ('닭', 1);
+                    ('닭가슴살', 1);
 
 INSERT INTO Item (category_id, name, average_rating, product_image, lowest_price) VALUES
                 (3, '모짜렐라 비프라쟈냐', 4.8, 'https://sitem.ssgcdn.com/33/93/88/item/1000030889333_i1_290.jpg', 5980),
