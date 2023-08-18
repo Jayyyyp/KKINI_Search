@@ -66,10 +66,15 @@
     <label for="ratingImage">Upload Rating Images:</label>
     <!-- 평점 이미지 표시 -->
     <!-- 이미지 선택 입력 필드 -->
-    <input type="file" id="imageInput" name="ratingImage" onchange="previewImage(event)">
+    <input type="file" id="imageInput" name="ratingImages" onchange="previewImage(event)" multiple>
 
     <!-- 이미지 미리보기 -->
-    <img id="imagePreview" width="100">
+    <div id="imagePreviews">
+        <img id="imagePreview1" width="100">
+        <img id="imagePreview2" width="100">
+        <img id="imagePreview3" width="100">
+        <img id="imagePreview4" width="100">
+    </div>
 
     <label for="ratingText">Rating Text:</label>
     <textarea name="ratingText" rows="4" cols="50" required></textarea><br><br>
@@ -108,13 +113,15 @@
             });
         }
         function previewImage(event) {
-            var reader = new FileReader();
-            reader.onload = function() {
-                // 이미지 미리보기에 데이터 URL 설정
-                var output = document.getElementById('imagePreview');
-                output.src = reader.result;
-            };
-            reader.readAsDataURL(event.target.files[0]);
+            const files = event.target.files;
+
+            for(let i = 0; i < files.length; i++) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('imagePreview' + (i + 1)).src = e.target.result;
+                };
+                reader.readAsDataURL(files[i]);
+            }
         }
     </script>
 </body>

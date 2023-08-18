@@ -55,25 +55,33 @@ public class RatingController {
                                HttpServletRequest request,
                                @RequestParam int ratingValue,
                                @RequestParam String ratingText,
-                               @RequestParam(value = "ratingImage", required = false) MultipartFile imageFile,
+                               @RequestParam(value = "ratingImages", required = false) MultipartFile[] imageFiles,
                                Model model) {
+        if (imageFiles == null) throw new IllegalArgumentException("ImageFiles cannot be null");
+
         Ratings rating = new Ratings();
         Long userId = (Long) request.getSession().getAttribute("userId");
 
-        if (imageFile != null && !imageFile.isEmpty()) {
-            try {
-                String savedImagePath = ratingService.saveImage(imageFile);
-                rating.setRatingImage(savedImagePath); // Ratings 객체에 ratingImage 설정
-            } catch (IOException e) {
-                e.printStackTrace();
-                return "errorPage";
+        if (userId == null) return "errorPage"; // or any other error handling mechanism
+
+        List<String> savedImagePaths = new ArrayList<>();
+
+        for (MultipartFile imageFile : imageFiles) {
+            if (imageFile != null && !imageFile.isEmpty()) {
+                try {
+                    String savedImagePath = ratingService.saveImage(imageFile);
+                    savedImagePaths.add(savedImagePath);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return "errorPage";
+                }
             }
         }
-
-        ratingService.saveRating(itemId, userId, ratingValue, ratingText, rating.getRatingImage()); // ratingImage 사용
+        ratingService.saveRating(itemId, userId, ratingValue, ratingText, savedImagePaths.toArray(new String[0]));
         model.addAttribute("rating", ratingService.getRatingsForItem(itemId));
         return "redirect:/items/" + itemId;
     }
+
 
     @GetMapping("/userRatings/{userId}")
     public String getUserRatings(@PathVariable Long userId, Model model){

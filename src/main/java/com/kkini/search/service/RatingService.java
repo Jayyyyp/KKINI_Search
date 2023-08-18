@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
@@ -40,30 +41,46 @@ public class RatingService {
         return ratingRepository.findByItemId(itemId);
     }
 
-    public Ratings saveRating(Long itemId, Long userId, int ratingValue, String rateText, String rateImage) {
-        Users users = userRepository.findById(userId).orElse(null);
+    public Ratings saveRating(Long itemId, Long userId, int ratingValue, String rateText, String[] rateImages) {
+        if (userId == null) throw new IllegalArgumentException("UserId cannot be null");
+        if (rateImages == null) throw new IllegalArgumentException("RateImages cannot be null");
+
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("No user found with ID: " + userId));
+
         Ratings rating = new Ratings();
         rating.setItemId(itemId);
-        rating.setUsers(users);
+        rating.setUsers(user);
         rating.setRatingValue(ratingValue);
         rating.setRatingText(rateText);
-        rating.setRatingImage(rateImage);  // 이미지 설정
+
+        // Set images to the rating based on the number of images provided.
+        if (rateImages.length > 0 && rateImages[0] != null && !rateImages[0].isEmpty()) {
+            rating.setRatingImage1(rateImages[0]);
+        }
+        if (rateImages.length > 1 && rateImages[1] != null && !rateImages[1].isEmpty()) {
+            rating.setRatingImage2(rateImages[1]);
+        }
+        if (rateImages.length > 2 && rateImages[2] != null && !rateImages[2].isEmpty()) {
+            rating.setRatingImage3(rateImages[2]);
+        }
+        if (rateImages.length > 3 && rateImages[3] != null && !rateImages[3].isEmpty()) {
+            rating.setRatingImage4(rateImages[3]);
+        }
 
         Ratings savedRating = ratingRepository.save(rating);
-
         updateAverageRating(itemId);
-
         return savedRating;
     }
 
     public String saveImage(MultipartFile imageFile) throws IOException {
-        String originalFilename = imageFile.getOriginalFilename();
-        String savePath = imageStoragePath + originalFilename;
+        String originalFilename = UUID.randomUUID().toString() + "_" + imageFile.getOriginalFilename();
+        String savePath = imageStoragePath + File.separator + originalFilename;
 
         File fileToSave = new File(savePath);
-        imageFile.transferTo(fileToSave); // 이미지 파일을 지정한 위치에 저장
+        imageFile.transferTo(fileToSave);
 
-        return "/images/" + originalFilename; // 저장된 이미지의 URL을 반환
+        return "/images/" + originalFilename;
     }
 
 

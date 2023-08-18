@@ -24,8 +24,14 @@ public class Ratings {
     @Column(name = "rating_text")
     private String ratingText;
 
-    @Column(name = "rating_image", nullable = true)
-    private String ratingImage;
+    @Column(name = "rating_image1", nullable = true)
+    private String ratingImage1;
+    @Column(name = "rating_image2", nullable = true)
+    private String ratingImage2;
+    @Column(name = "rating_image3", nullable = true)
+    private String ratingImage3;
+    @Column(name = "rating_image4", nullable = true)
+    private String ratingImage4;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();

@@ -101,12 +101,24 @@
                 <p>${rating.ratingText}</p>
 
                 <!-- 평점 이미지 표시 -->
-                <img src="${rating.ratingImage}" alt="Rating Image" width="100">
+
+                <c:if test="${not empty rating.ratingImage1}">
+                    <img src="/items${rating.ratingImage1}" alt="Rating Image 1" width="100">
+                </c:if>
+                <c:if test="${not empty rating.ratingImage2}">
+                    <img src="/items${rating.ratingImage2}" alt="Rating Image 2" width="100">
+                </c:if>
+                <c:if test="${not empty rating.ratingImage3}">
+                    <img src="/items${rating.ratingImage3}" alt="Rating Image 3" width="100">
+                </c:if>
+                <c:if test="${not empty rating.ratingImage4}">
+                    <img src="/items${rating.ratingImage4}" alt="Rating Image 4" width="100">
+                </c:if>
 
                 <!-- 평점 별점 표시 -->
-                <c:forEach varStatus="status" begin="1" end="5">
+                <c:forEach varStatus="starStatus" begin="1" end="5">
                     <c:choose>
-                        <c:when test="${status.index < rating.ratingValue}">
+                        <c:when test="${starStatus.index <= rating.ratingValue}">
                             <span class="fa fa-star" style="color: gold;"></span>
                         </c:when>
                         <c:otherwise>

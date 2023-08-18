@@ -5,15 +5,22 @@ import com.kkini.search.entity.Ratings;
 import com.kkini.search.service.ItemService;
 import com.kkini.search.service.RatingService;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -23,14 +30,20 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/items")
+@RequiredArgsConstructor
 public class ItemController {
 
     private ItemService itemService;
 
     private RatingService ratingService;
 
+    @Value("${app.image-storage-path}")
+    private Path imageStroagePath; // 이미지가 저장된 경로 주입
+
+    private static final Logger logger = LoggerFactory.getLogger(ItemController.class);
+
     @Autowired
-    public ItemController (ItemService itemService, RatingService ratingService){
+    public ItemController(ItemService itemService, RatingService ratingService){
         this.itemService = itemService;
         this.ratingService = ratingService;
     }
@@ -84,17 +97,21 @@ public class ItemController {
 
         return "itemDetail";
     }
-    @GetMapping("/{imageName}.png")
-    public ResponseEntity<Resource> fetchImage(@PathVariable String imageName) {
-        Path imagePath = Paths.get("your-image-storage-directory", imageName + ".png");
+    @GetMapping("/images/{filename:.+}")
+    public ResponseEntity<Resource> serveImage(@PathVariable String filename) {
+        try {
+            Path file = imageStroagePath.resolve(filename); // 이미지 경로를 결정
+            logger.info("이미지 path : ", file.toString());
+            Resource resource = new UrlResource(file.toUri());
 
-        if (Files.exists(imagePath)) {
-            Resource resource = new FileSystemResource(imagePath);
-            return ResponseEntity.ok()
-                    .contentType(MediaType.IMAGE_PNG)
-                    .body(resource);
-        } else {
-            return ResponseEntity.notFound().build();
+            if (resource.exists() || resource.isReadable()) {
+                return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
+                        "inline; filename=\"" + resource.getFilename() + "\"").body(resource);
+            } else {
+                throw new RuntimeException("Could not read file: " + filename);
+            }
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("Error: " + e.getMessage());
         }
     }
 
