@@ -6,7 +6,11 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity@NoArgsConstructor@AllArgsConstructor@Builder@Getter
+@Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Getter
 @ToString(exclude = {"parent", "subCategories"})
 public class Category {
 

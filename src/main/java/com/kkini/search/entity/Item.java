@@ -5,7 +5,11 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Entity@NoArgsConstructor@AllArgsConstructor@Builder@Getter
+@Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Getter
 @ToString(exclude = {"category"})
 public class Item {
     @Id
