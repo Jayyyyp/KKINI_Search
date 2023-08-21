@@ -5,6 +5,7 @@ import com.kkini.search.entity.Ratings;
 import com.kkini.search.service.ItemService;
 import com.kkini.search.service.RatingService;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,21 +33,14 @@ import java.util.List;
 @RequestMapping("/items")
 @RequiredArgsConstructor
 public class ItemController {
+    // HTTP 요청과 같은 웹 관련 로직
 
-    private ItemService itemService;
-
-    private RatingService ratingService;
+    private final ItemService itemService;
 
     @Value("${app.image-storage-path}")
     private Path imageStroagePath; // 이미지가 저장된 경로 주입
-
     private static final Logger logger = LoggerFactory.getLogger(ItemController.class);
 
-    @Autowired
-    public ItemController(ItemService itemService, RatingService ratingService){
-        this.itemService = itemService;
-        this.ratingService = ratingService;
-    }
 
     // 검색 기능 구현
     @GetMapping("/search")
@@ -55,26 +49,18 @@ public class ItemController {
                               Model model, HttpServletRequest request) {
 
         if (isAjaxRequest(request)) {
-            List<String> autoCompletes = itemService.autoCompleteNames(name);
-            return autoCompletes;
+            return itemService.autoCompleteNames(name);
         }
 
-        List<Item> items;
-        if (name != null && name.length() >= 2) {
-            items = itemService.searchItemsByName(name, categoryId);
-        } else if (categoryId != null) {
-            items = itemService.searchItemsByName(null, categoryId);
-        } else {
+        if (name == null && categoryId == null) {
             model.addAttribute("items", Collections.emptyList());
             return "search";
         }
 
+        List<Item> items = itemService.searchItemsByName(name, categoryId);
         model.addAttribute("items", items);
-        if (!items.isEmpty()) {
-            return "searchResults";
-        } else {
-            return "noItems";
-        }
+
+        return items.isEmpty() ? "noItems" : "searchResults";
     }
 
     private boolean isAjaxRequest(HttpServletRequest request) {
@@ -83,35 +69,40 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public String getItemDetail(@PathVariable Long itemId, Model model, HttpServletRequest request) {
+    public String showItemDetail(@PathVariable Long itemId, Model model) {
         Item item = itemService.getItemById(itemId);
         if (item == null) {
             return "errorPage";
         }
-        List<Ratings> ratings = ratingService.getRatingsForItem(itemId);
-        Long userId = (Long) request.getSession().getAttribute("userId");
-
         model.addAttribute("item", item);
-        model.addAttribute("ratings", ratings);
-        model.addAttribute("userId", userId);
-
         return "itemDetail";
     }
+
     @GetMapping("/images/{filename:.+}")
     public ResponseEntity<Resource> serveImage(@PathVariable String filename) {
-        try {
-            Path file = imageStroagePath.resolve(filename); // 이미지 경로를 결정
-            logger.info("이미지 path : ", file.toString());
-            Resource resource = new UrlResource(file.toUri());
+        Path filePath = resolveImagePath(filename);
+        Resource resource = getResource(filePath);
 
-            if (resource.exists() || resource.isReadable()) {
-                return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
-                        "inline; filename=\"" + resource.getFilename() + "\"").body(resource);
-            } else {
-                throw new RuntimeException("Could not read file: " + filename);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
+    }
+
+    private Path resolveImagePath(String filename) {
+        Path file = imageStroagePath.resolve(filename);
+        logger.info("이미지 경로 : {}", file.toString());
+        return file;
+    }
+
+    private Resource getResource(Path filePath) {
+        try {
+            Resource resource = new UrlResource(filePath.toUri());
+            if (!resource.exists() || !resource.isReadable()) {
+                throw new RuntimeException("파일을 읽을 수 없습니다: " + filePath.getFileName());
             }
+            return resource;
         } catch (MalformedURLException e) {
-            throw new RuntimeException("Error: " + e.getMessage());
+            throw new RuntimeException("오류: " + e.getMessage());
         }
     }
 

@@ -43,7 +43,6 @@
     <input type="text" name="name" id="searchInput" placeholder="Enter product name" list="recentSearches">
     <div id="autocomplete-dropdown" class="autocomplete-items"></div>
     <datalist id="recentSearches">
-        <!-- JavaScript will dynamically insert recent searches here -->
     </datalist>
 
     <br>
@@ -57,16 +56,14 @@
 
     const searchForm = document.getElementById('searchForm');
     const searchInput = document.getElementById('searchInput');
-    const recentSearchList = document.getElementById('recentSearchList');
-    const dataList = document.getElementById('recentSearches');
     const autocompleteDropdown = document.getElementById("autocomplete-dropdown");
+    const dataList = document.getElementById('recentSearches'); // dataList 변수 추가
 
     searchForm.addEventListener('submit', function(event) {
         const searchTerm = searchInput.value.trim();
         if (searchTerm && !recentSearches.includes(searchTerm)) {
             recentSearches.push(searchTerm);
             localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
-            renderRecentSearches();
         }
     });
 
