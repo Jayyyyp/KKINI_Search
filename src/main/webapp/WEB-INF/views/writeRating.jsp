@@ -70,10 +70,22 @@
 
     <!-- 이미지 미리보기 -->
     <div id="imagePreviews">
-        <img id="imagePreview1" width="100">
-        <img id="imagePreview2" width="100">
-        <img id="imagePreview3" width="100">
-        <img id="imagePreview4" width="100">
+        <div class="img-container">
+            <img id="imagePreview1" width="100">
+            <button onclick="removeImage(event, 'imagePreview1')">-</button>
+        </div>
+        <div class="img-container">
+            <img id="imagePreview2" width="100">
+            <button onclick="removeImage(event, 'imagePreview2')">-</button>
+        </div>
+        <div class="img-container">
+            <img id="imagePreview3" width="100">
+            <button onclick="removeImage(event, 'imagePreview3')">-</button>
+        </div>
+        <div class="img-container">
+            <img id="imagePreview4" width="100">
+            <button onclick="removeImage(event, 'imagePreview4')">-</button>
+        </div>
     </div>
 
     <label for="ratingText">Rating Text:</label>
@@ -82,7 +94,10 @@
 </form>
 
 <script>
+    // 이미지 저장할 배열
+    let selectedImages = [];
         document.addEventListener('DOMContentLoaded', function() {
+
             const ratingStars = document.querySelectorAll('.rating-input .fa-star');
             ratingStars.forEach((star, index) => {
                 star.addEventListener('click', function() {
@@ -94,6 +109,12 @@
                 });
             });
             setItemRatingDisplay();
+
+            document.querySelector('form').addEventListener('submit', function(event) {
+                const dataTransfer = new DataTransfer();
+                selectedImages.forEach(img => dataTransfer.items.add(img));
+                document.getElementById('imageInput').files = dataTransfer.files;
+            });
         });
 
         function setItemRatingDisplay() {
@@ -112,17 +133,29 @@
                 star.classList.remove('active-star');
             });
         }
-        function previewImage(event) {
-            const files = event.target.files;
-
-            for(let i = 0; i < files.length; i++) {
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('imagePreview' + (i + 1)).src = e.target.result;
-                };
-                reader.readAsDataURL(files[i]);
-            }
+    function previewImage(event) {
+        const files = event.target.files;
+        for(let i = 0; i < files.length; i++) {
+            selectedImages.push(files[i]);
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('imagePreview' + (i + 1)).src = e.target.result;
+            };
+            reader.readAsDataURL(files[i]);
         }
-    </script>
+    }
+
+    function removeImage(event, imageId) {
+        event.preventDefault();
+        var imageIndex = parseInt(imageId.replace('imagePreview', '')) - 1;
+        if (selectedImages[imageIndex]) {
+            selectedImages.splice(imageIndex, 1);
+        }
+        var imageElement = document.getElementById(imageId);
+        if (imageElement) {
+            imageElement.src = "";
+        }
+    }
+</script>
 </body>
 </html>

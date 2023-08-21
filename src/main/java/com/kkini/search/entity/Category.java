@@ -2,6 +2,7 @@ package com.kkini.search.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.repository.query.Param;
 
 import java.util.ArrayList;
 import java.util.List;

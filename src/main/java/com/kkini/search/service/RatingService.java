@@ -37,8 +37,8 @@ public class RatingService {
         return ratingRepository.findByItemIdOrderByUpdatedAtDesc(itemId);
     }
 
-    public List<Ratings> getRatingsForItem(Long itemId){
-        return ratingRepository.findByItemId(itemId);
+    public List<Ratings> getRatingsForItem(Long itemId) {
+        return ratingRepository.findByItemIdOrderByUpdatedAtDesc(itemId);
     }
 
     public Ratings saveRating(Long itemId, Long userId, int ratingValue, String rateText, String[] rateImages) {
@@ -92,6 +92,7 @@ public class RatingService {
     public void delete(Ratings rating) {
         ratingRepository.delete(rating);
     }
+
     public void updateAverageRating(Long itemId) {
         List<Ratings> ratings = ratingRepository.findByItemId(itemId);
 
@@ -125,4 +126,58 @@ public class RatingService {
         Long itemId = rating.getItemId();
         updateAverageRating(itemId);
     }
+
+    public void deleteImage(String imagePath) {
+        // DB에서 이미지 경로 삭제
+        ratingRepository.deleteRatingImage1ByPath(imagePath);
+        ratingRepository.deleteRatingImage2ByPath(imagePath);
+        ratingRepository.deleteRatingImage3ByPath(imagePath);
+        ratingRepository.deleteRatingImage4ByPath(imagePath);
+
+        // 물리적으로 storage 공간의 이미지 삭제
+        try {
+            Path path = Paths.get(imagePath);
+            Files.deleteIfExists(path);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateRatingWithImage(Long ratingId, Long userId, int ratingValue, String ratingText, String[] rateImages) {
+        Ratings rating = getRatingForUser(ratingId, userId);
+
+        rating.setRatingValue(ratingValue);
+        rating.setRatingText(ratingText);
+        setRatingImages(rateImages, rating);
+
+        ratingRepository.save(rating);
+        updateAverageRating(rating.getItemId());
+    }
+
+    private Ratings getRatingForUser(Long ratingId, Long userId) {
+        Ratings rating = ratingRepository.findById(ratingId).orElse(null);
+
+        if (rating == null || !rating.getUsers().getUserId().equals(userId)) {
+            throw new IllegalArgumentException("Invalid rating or user");
+        }
+
+        return rating;
+    }
+
+    private void setRatingImages(String[] rateImages, Ratings rating) {
+        if (rateImages.length > 0 && rateImages[0] != null && !rateImages[0].isEmpty()) {
+            rating.setRatingImage1(rateImages[0]);
+        }
+        if (rateImages.length > 1 && rateImages[1] != null && !rateImages[1].isEmpty()) {
+            rating.setRatingImage2(rateImages[1]);
+        }
+        if (rateImages.length > 2 && rateImages[2] != null && !rateImages[2].isEmpty()) {
+            rating.setRatingImage3(rateImages[2]);
+        }
+        if (rateImages.length > 3 && rateImages[3] != null && !rateImages[3].isEmpty()) {
+            rating.setRatingImage4(rateImages[3]);
+        }
+    }
+
+
 }

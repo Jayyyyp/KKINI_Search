@@ -30,12 +30,6 @@
             background-color: transparent;
             position: relative;
         }
-        .half-star::before {
-            content: '\f089';
-            font-family: "Font Awesome 5 Free";
-            font-weight: 900;
-            color: gold;
-        }
         #ratingText{
             height: 100px;
             width: 400px;
@@ -165,13 +159,10 @@
                 ratingDisplay.children[i].classList.add('active-star');
             }
         }
-        if (hasHalfStar && fullStars < ratingDisplay.children.length) {
-            ratingDisplay.children[fullStars].classList.add('half-star');
-        }
     }
 
     function searchByUserId() {
-        const userId = document.getElementById('userIdSearch').value;
+        const userId = document.getElementById('userIdSearch').value.toString();
         const ratingItems = document.querySelectorAll('.rating-item');
 
         ratingItems.forEach(item => {
